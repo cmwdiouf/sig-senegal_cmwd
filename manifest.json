@@ -1,0 +1,84 @@
+{
+  "name": "SIG Sénégal - Expert Vision Pro",
+  "short_name": "SIG Sénégal",
+  "description": "Application de cartographie géographique du Sénégal avec géolocalisation en temps réel",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#1e293b",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%231e293b' width='192' height='192'/><text x='96' y='128' font-size='96' font-weight='bold' text-anchor='middle' fill='%2310b981' font-family='Arial'>S</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%231e293b' width='512' height='512'/><circle cx='256' cy='256' r='150' fill='%2310b981'/><path d='M256 150 L290 220 L365 220 L315 270 L340 340 L256 290 L172 340 L197 270 L147 220 L222 220 Z' fill='%23ffffff'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 144 144'><rect fill='%231e293b' width='144' height='144'/><path d='M72 30 C50 30 35 45 35 70 C35 100 72 130 72 130 C72 130 109 100 109 70 C109 45 94 30 72 30 Z' fill='%2310b981'/><circle cx='72' cy='70' r='12' fill='%23ffffff'/></svg>",
+      "sizes": "144x144",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%231e293b' width='96' height='96'/><path d='M48 20 C35 20 25 30 25 48 C25 68 48 85 48 85 C48 85 71 68 71 48 C71 30 61 20 48 20 Z' fill='%2310b981'/><circle cx='48' cy='48' r='8' fill='%23ffffff'/></svg>",
+      "sizes": "96x96",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["maps", "navigation"],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 720'><rect fill='%23f1f5f9' width='540' height='720'/><rect fill='%231e293b' width='540' height='65'/><text x='270' y='45' font-size='20' text-anchor='middle' fill='white' font-weight='bold'>SIG Sénégal</text><rect fill='%2310b981' x='50' y='100' width='440' height='570' rx='8'/></svg>",
+      "sizes": "540x720",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Ouvrir la carte",
+      "short_name": "Carte",
+      "description": "Affiche la carte géographique du Sénégal",
+      "url": "./index.html?mode=map",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%231e293b' width='96' height='96'/><path d='M20 25 L40 35 L60 20 L75 40 L70 60 L50 50 L35 70 L25 55 L10 60 Z' fill='%2310b981'/></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Localiser",
+      "short_name": "Ma position",
+      "description": "Affiche votre position actuelle sur la carte",
+      "url": "./index.html?mode=locate",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%231e293b' width='96' height='96'/><path d='M48 20 C35 20 25 30 25 48 C25 68 48 85 48 85 C48 85 71 68 71 48 C71 30 61 20 48 20 Z' fill='%2310b981'/><circle cx='48' cy='48' r='8' fill='%23ffffff'/></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "share_target": {
+    "action": "./share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}
