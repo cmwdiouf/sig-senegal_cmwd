@@ -1,13 +1,14 @@
 {
   "name": "SIG Sénégal - Expert Vision Pro",
   "short_name": "SIG Sénégal",
-  "description": "Application de cartographie géographique du Sénégal avec géolocalisation en temps réel",
-  "start_url": "./index.html",
-  "scope": "./",
+  "description": "Application de cartographie géographique du Sénégal avec géolocalisation GPS, accès hors ligne et analyse spatiale",
+  "start_url": "/sig-senegal_cmwd/index.html",
+  "scope": "/sig-senegal_cmwd/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#ffffff",
   "theme_color": "#1e293b",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%231e293b' width='192' height='192'/><text x='96' y='128' font-size='96' font-weight='bold' text-anchor='middle' fill='%2310b981' font-family='Arial'>S</text></svg>",

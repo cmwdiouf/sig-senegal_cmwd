@@ -13,11 +13,20 @@ const PWA_MODULE = (() => {
   async function init() {
     console.log('[PWA] Initialisation...');
 
-    // Enregistrer le service worker
+    // Enregistrer le service worker (sw-v2 avec meilleure gestion du cache)
     if ('serviceWorker' in navigator) {
       try {
-        swRegistration = await navigator.serviceWorker.register('./sw.js', {
-          scope: './',
+        // Déterminer le chemin correct pour GitHub Pages ou localhost
+        const swPath = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+          ? './sw-v2.js' 
+          : '/sig-senegal_cmwd/sw-v2.js';
+        
+        const scope = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? './'
+          : '/sig-senegal_cmwd/';
+
+        swRegistration = await navigator.serviceWorker.register(swPath, {
+          scope: scope,
           updateViaCache: 'none'
         });
 

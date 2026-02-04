@@ -1,0 +1,25 @@
+# Système d'exploitation
+.DS_Store
+Thumbs.db
+*.log
+
+# Éditeurs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Dépendances
+node_modules/
+package-lock.json
+
+# Fichiers temporaires
+*.tmp
+.cache/
+dist/
+
+# Fichiers à ne pas commiter
+.env
+.env.local
+secrets.json
