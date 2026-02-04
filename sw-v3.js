@@ -25,9 +25,7 @@ const CRITICAL_ASSETS = [
   basePath + 'js/leaflet.js',
   basePath + 'js/leaflet.markercluster.js',
   basePath + 'js/geolocation.js',
-  basePath + 'js/pwa.js',
-  basePath + 'js/mobile-ui.js',
-  basePath + 'js/sig-advanced.js'
+  basePath + 'js/pwa.js'
 ];
 
 // Tuiles acceptées (OpenStreetMap, etc.)

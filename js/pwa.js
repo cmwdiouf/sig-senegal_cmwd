@@ -459,16 +459,20 @@ const PWA_MODULE = (() => {
 
     // Géolocalisation
     try {
-      await GEOLOCATION_MODULE.requestLocationPermission();
-      permissions.geolocation = true;
+      if (window.GEOLOCATION_MODULE && GEOLOCATION_MODULE.requestLocationPermission) {
+        await GEOLOCATION_MODULE.requestLocationPermission();
+        permissions.geolocation = true;
+      }
     } catch (error) {
       console.warn('[PWA] Géolocalisation refusée:', error);
     }
 
     // Notifications
     try {
-      const result = await Notification.requestPermission();
-      permissions.notification = result === 'granted';
+      if ('Notification' in window) {
+        const result = await Notification.requestPermission();
+        permissions.notification = result === 'granted';
+      }
     } catch (error) {
       console.warn('[PWA] Notifications refusées:', error);
     }
