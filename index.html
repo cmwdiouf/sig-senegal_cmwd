@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet-search@2.18.0/dist/leaflet-search.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet-measure-path@0.0.7/leaflet-measure-path.css">
-    <link rel="stylesheet" href="./css/mobile-pro.css">
+    <link rel="stylesheet" href="./css/modern-pro.css">
 
     <style>
         :root {
@@ -114,128 +114,149 @@
 <body>
 
 <div id="top-navbar">
-    <button class="btn text-white" id="btn-toggle-side"><i class="fas fa-bars"></i></button>
-    <div class="ms-2 d-none d-md-block">
-        <h6 class="mb-0">PLATEFORME GÉOSPATIALE</h6>
-        <small class="text-success" style="font-size: 10px;"><i class="fas fa-circle me-1"></i> Système Opérationnel</small>
-    </div>
+    <button class="btn text-white" id="btn-toggle-side" aria-label="Afficher le menu"><i class="fas fa-bars"></i></button>
+    <div id="top-navbar-title">SIG Sénégal</div>
     
-    <div class="search-container">
-        <div class="input-group input-group-sm">
-            <span class="input-group-text bg-white border-0"><i class="fas fa-search text-muted"></i></span>
-            <input type="text" id="map-search" class="form-control border-0 shadow-none" placeholder="Rechercher une localité, une région...">
+    <div class="ms-auto d-flex align-items-center gap-3">
+        <div class="status-indicator" style="color: white; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">
+            <span class="status-dot online"></span>
+            En ligne
         </div>
-    </div>
-
-    <div class="ms-auto d-flex align-items-center">
-        <button class="btn btn-sm btn-outline-light me-2"><i class="fas fa-print"></i></button>
-        <div class="vr me-3 ms-2"></div>
-        <img src="https://upload.wikimedia.org/wikipedia/commons/f/fd/Flag_of_Senegal.svg" width="30" class="rounded shadow-sm">
+        <button class="btn btn-icon" style="background: rgba(255,255,255,0.1); color: white; border: none;" title="Paramètres">
+            <i class="fas fa-cog"></i>
+        </button>
     </div>
 </div>
 
 <div class="main-wrapper">
     <div class="sidebar" id="sidebar">
-        <nav class="nav nav-pills-custom" role="tablist">
-            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-home"><i class="fas fa-home d-block mb-1"></i> Accueil</button>
-            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-layers"><i class="fas fa-layer-group d-block mb-1"></i> Couches</button>
-            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-analysis"><i class="fas fa-chart-pie d-block mb-1"></i> Analyse</button>
-            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-locate"><i class="fas fa-location-dot d-block mb-1"></i> Position</button>
-            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-legend"><i class="fas fa-list d-block mb-1"></i> Légende</button>
+        <nav class="nav-pills-custom" role="tablist">
+            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-home" aria-selected="true">
+                <i class="fas fa-home"></i>
+                <span>Accueil</span>
+            </button>
+            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-layers" aria-selected="false">
+                <i class="fas fa-layer-group"></i>
+                <span>Couches</span>
+            </button>
+            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-analysis" aria-selected="false">
+                <i class="fas fa-chart-pie"></i>
+                <span>Analyse</span>
+            </button>
+            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-locate" aria-selected="false">
+                <i class="fas fa-location-dot"></i>
+                <span>Position</span>
+            </button>
+            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-legend" aria-selected="false">
+                <i class="fas fa-list"></i>
+                <span>Légende</span>
+            </button>
         </nav>
 
         <div class="tab-content">
+            <!-- Tab: Accueil -->
             <div class="tab-pane fade show active" id="tab-home">
-                <h5 class="fw-bold mb-3">Tableau de bord</h5>
-                <p class="text-muted small">Bienvenue sur l'interface SIG du Sénégal. Voici un résumé des entités cartographiées.</p>
+                <div class="card-title">📊 Tableau de bord</div>
+                <p class="text-muted small">Plateforme SIG complète pour le Sénégal</p>
                 
                 <div class="stat-card">
-                    <div class="text-muted small text-uppercase">Régions Administratives</div>
-                    <div class="h4 fw-bold mb-0">14</div>
+                    <div class="stat-label">Régions Administratives</div>
+                    <div class="stat-value">14</div>
                 </div>
                 <div class="stat-card">
-                    <div class="text-muted small text-uppercase">Localités Recensées</div>
-                    <div class="h4 fw-bold mb-0" id="count-localites">--</div>
+                    <div class="stat-label">Localités Recensées</div>
+                    <div class="stat-value" id="count-localites">--</div>
                 </div>
                 <div class="stat-card">
-                    <div class="text-muted small text-uppercase">Réseau Routier</div>
-                    <div class="h4 fw-bold mb-0">Étendue Nationale</div>
+                    <div class="stat-label">Réseau Routier</div>
+                    <div style="margin: 12px 0 0 0; font-weight: 600; color: #1e293b;">Étendue Nationale</div>
                 </div>
                 
-                <div class="alert alert-info border-0 shadow-sm small">
-                    <i class="fas fa-info-circle me-2"></i> Sélectionnez une entité sur la carte pour afficher ses métadonnées détaillées.
+                <div class="notification" style="background: linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(16,185,129,0.05) 100%); border-left-color: #3b82f6;">
+                    <div class="notification-icon">ℹ️</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Astuce</div>
+                        <div class="notification-message">Sélectionnez une entité sur la carte pour voir ses détails</div>
+                    </div>
                 </div>
             </div>
 
+            <!-- Tab: Couches -->
             <div class="tab-pane fade" id="tab-layers">
-                <h6 class="fw-bold mb-3 text-uppercase" style="font-size: 12px; letter-spacing: 1px;">Gestion des Couches</h6>
-                <div id="layers-control-list">
-                    </div>
-                <hr>
-                <h6 class="fw-bold mb-3 text-uppercase" style="font-size: 12px; letter-spacing: 1px;">Fond de Carte</h6>
-                <select class="form-select form-select-sm" id="basemap-select">
-                    <option value="osm">OpenStreetMap Standard</option>
-                    <option value="topo">Topographique</option>
-                    <option value="sat">Satellite ArcGIS</option>
-                    <option value="dark">CartoDB Dark</option>
+                <div class="card-title">🎨 Gestion des Couches</div>
+                <div id="layers-control-list"></div>
+                
+                <hr style="margin: 20px 0; border-top: 1px solid var(--gray-200);">
+                
+                <div class="card-title">🗺️ Fond de Carte</div>
+                <select class="form-control" id="basemap-select">
+                    <option value="osm">🌍 OpenStreetMap Standard</option>
+                    <option value="topo">⛏️ Topographique</option>
+                    <option value="sat">🛰️ Satellite ArcGIS</option>
+                    <option value="dark">🌙 CartoDB Dark</option>
                 </select>
             </div>
 
+            <!-- Tab: Analyse -->
             <div class="tab-pane fade" id="tab-analysis">
-                <h6 class="fw-bold mb-3">Outils d'analyse</h6>
-                <div class="d-grid gap-2">
-                    <button class="btn btn-sm btn-light text-start border" id="tool-measure"><i class="fas fa-ruler-combined me-2"></i> Mesurer une distance</button>
-                    <button class="btn btn-sm btn-light text-start border" id="tool-area"><i class="fas fa-draw-polygon me-2"></i> Calculer une surface</button>
+                <div class="card-title">📈 Outils d'Analyse</div>
+                <div style="display: grid; gap: 8px;">
+                    <button class="btn-primary" id="tool-measure" style="justify-content: flex-start;">
+                        <i class="fas fa-ruler-combined"></i> Mesurer une distance
+                    </button>
+                    <button class="btn-primary" id="tool-area" style="justify-content: flex-start;">
+                        <i class="fas fa-draw-polygon"></i> Calculer une surface
+                    </button>
                 </div>
                 
-                <div class="mt-4">
-                    <h6 class="fw-bold mb-2">Propriétés de l'objet</h6>
-                    <div id="feature-info" class="p-3 bg-light rounded small" style="min-height: 100px;">
-                        <span class="text-muted italic">Aucun objet sélectionné.</span>
-                    </div>
+                <hr style="margin: 20px 0;">
+                
+                <div class="card-title">🔍 Propriétés de l'objet</div>
+                <div id="feature-info" class="card" style="min-height: 120px; background: var(--gray-100); display: flex; align-items: center; justify-content: center; border: none;">
+                    <span class="text-muted">📍 Aucun objet sélectionné</span>
                 </div>
             </div>
 
+            <!-- Tab: Localisation -->
             <div class="tab-pane fade" id="tab-locate">
-                <h5 class="fw-bold mb-3"><i class="fas fa-location-dot me-2 text-danger"></i>Géolocalisation</h5>
+                <div class="card-title">📍 Géolocalisation</div>
                 
-                <div class="d-grid gap-2 mb-3">
-                    <button class="btn btn-sm btn-primary" id="btn-locate-once">
-                        <i class="fas fa-map-pin me-2"></i>Localiser ma position
+                <div style="display: grid; gap: 8px; margin-bottom: 16px;">
+                    <button class="btn-primary" id="btn-locate-once">
+                        <i class="fas fa-map-pin"></i> Localiser ma position
                     </button>
-                    <button class="btn btn-sm btn-outline-primary" id="btn-locate-track">
-                        <i class="fas fa-location-arrow me-2"></i>Démarrer le suivi
+                    <button class="btn-primary" style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);" id="btn-locate-track">
+                        <i class="fas fa-location-arrow"></i> Démarrer le suivi
                     </button>
-                    <button class="btn btn-sm btn-outline-danger d-none" id="btn-locate-stop">
-                        <i class="fas fa-stop-circle me-2"></i>Arrêter le suivi
+                    <button class="btn-primary" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); display: none;" id="btn-locate-stop">
+                        <i class="fas fa-stop-circle"></i> Arrêter le suivi
                     </button>
                 </div>
 
-                <div class="alert alert-light border p-2 mb-3" id="locate-permission-alert" style="font-size: 0.85rem;">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <span id="locate-permission-text">Cliquez sur "Localiser" pour autoriser l'accès à votre position GPS.</span>
-                </div>
-
-                <div id="location-info" class="p-3 bg-light rounded small" style="display: none;">
-                    <div class="mb-2">
-                        <strong>Position actuelle</strong>
-                        <button class="btn btn-xs btn-link float-end p-0" id="btn-copy-coords" style="font-size: 0.8rem;">Copier</button>
+                <div class="notification" id="locate-permission-alert">
+                    <div class="notification-icon">✅</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Permissions</div>
+                        <div id="locate-permission-text" class="notification-message">Autorisez l'accès à votre position GPS</div>
                     </div>
-                    <div class="mb-2">
+                </div>
+
+                <div id="location-info" class="card" style="display: none;">
+                    <div style="font-weight: 700; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>Position actuelle</span>
+                        <button class="btn-primary" id="btn-copy-coords" style="padding: 4px 12px; font-size: 0.85rem;">Copier</button>
+                    </div>
+                    <div style="display: grid; gap: 8px; font-size: 0.9rem;">
                         <div><strong>Latitude:</strong> <span id="loc-latitude">--</span></div>
                         <div><strong>Longitude:</strong> <span id="loc-longitude">--</span></div>
                         <div><strong>Précision:</strong> <span id="loc-accuracy">--</span> m</div>
-                    </div>
-                    <div class="mb-2">
                         <div><strong>Altitude:</strong> <span id="loc-altitude">--</span> m</div>
                         <div><strong>Vitesse:</strong> <span id="loc-speed">--</span> km/h</div>
-                    </div>
-                    <div>
                         <div><strong>Mise à jour:</strong> <span id="loc-timestamp">--</span></div>
                     </div>
                 </div>
 
-                <hr>
+                <hr style="margin: 20px 0;">
 
                 <div>
                     <h6 class="fw-bold mb-2">Historique de déplacement</h6>
