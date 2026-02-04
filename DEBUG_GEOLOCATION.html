@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Géolocalisation - SIG Sénégal</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h1 { color: #1e293b; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #e0e0e0; border-radius: 4px; }
+        .test-section h3 { margin-top: 0; color: #334155; }
+        button { background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #059669; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .result { margin-top: 10px; padding: 10px; background: #f0f0f0; border-left: 4px solid #10b981; border-radius: 4px; font-family: monospace; font-size: 12px; word-break: break-all; }
+        .error { border-left-color: #ef4444; background: #fef2f2; }
+        .success { border-left-color: #10b981; background: #f0fdf4; }
+        .info { color: #666; font-size: 0.9em; }
+        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; margin: 5px 0; }
+        .status-ok { background: #d1fae5; color: #065f46; }
+        .status-error { background: #fee2e2; color: #991b1b; }
+        .status-warning { background: #fef3c7; color: #92400e; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Géolocalisation - SIG Sénégal</h1>
+        <p class="info">Cette page teste les fonctionnalités de géolocalisation de l'application.</p>
+
+        <div class="test-section">
+            <h3>1️⃣ Vérification du navigateur</h3>
+            <div id="browser-info"></div>
+            <button onclick="testBrowserSupport()">Vérifier le navigateur</button>
+        </div>
+
+        <div class="test-section">
+            <h3>2️⃣ Vérification des permissions</h3>
+            <div id="permissions-info"></div>
+            <button onclick="testPermissions()">Vérifier les permissions</button>
+        </div>
+
+        <div class="test-section">
+            <h3>3️⃣ Test de géolocalisation simple</h3>
+            <div id="geolocation-result"></div>
+            <button onclick="testGeolocation()">Obtenir ma position</button>
+            <button onclick="testGeolocationWatch()" id="watch-btn">Démarrer le suivi</button>
+            <button onclick="stopGeolocationWatch()" id="stop-btn" disabled>Arrêter le suivi</button>
+        </div>
+
+        <div class="test-section">
+            <h3>4️⃣ Test du module GEOLOCATION_MODULE</h3>
+            <div id="module-info"></div>
+            <button onclick="testGeoModule()">Tester le module</button>
+        </div>
+
+        <div class="test-section">
+            <h3>5️⃣ Test du Service Worker</h3>
+            <div id="sw-info"></div>
+            <button onclick="testServiceWorker()">Vérifier le Service Worker</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 Logs d'exécution</h3>
+            <div id="logs" style="height: 200px; overflow-y: auto; background: #1e293b; color: #10b981; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px;"></div>
+            <button onclick="clearLogs()">Effacer les logs</button>
+        </div>
+    </div>
+
+    <script>
+        let watchId = null;
+
+        // Rediriger les logs
+        const logContainer = document.getElementById('logs');
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+
+        function addLog(type, ...args) {
+            const msg = args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ');
+            const line = document.createElement('div');
+            line.textContent = `[${type}] ${new Date().toLocaleTimeString()} > ${msg}`;
+            line.style.color = type === 'ERROR' ? '#ef4444' : type === 'WARN' ? '#f59e0b' : '#10b981';
+            logContainer.appendChild(line);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            originalLog(...args);
+        }
+
+        console.log = (...args) => addLog('LOG', ...args);
+        console.error = (...args) => addLog('ERROR', ...args);
+        console.warn = (...args) => addLog('WARN', ...args);
+
+        function clearLogs() {
+            logContainer.innerHTML = '';
+        }
+
+        function testBrowserSupport() {
+            const result = document.getElementById('browser-info');
+            result.innerHTML = '';
+
+            const checks = {
+                'Géolocalisation (navigator.geolocation)': !!navigator.geolocation,
+                'Service Worker': 'serviceWorker' in navigator,
+                'Notifications': 'Notification' in window,
+                'IndexedDB': !!window.indexedDB,
+                'LocalStorage': typeof(Storage) !== 'undefined',
+                'HTTPS / HTTP': location.protocol === 'https:' || location.hostname === 'localhost',
+            };
+
+            for (const [feature, supported] of Object.entries(checks)) {
+                const badge = document.createElement('div');
+                badge.className = 'status-badge ' + (supported ? 'status-ok' : 'status-error');
+                badge.textContent = (supported ? '✓' : '✗') + ' ' + feature;
+                result.appendChild(badge);
+            }
+
+            console.log('Support du navigateur:', checks);
+        }
+
+        function testPermissions() {
+            const result = document.getElementById('permissions-info');
+            result.innerHTML = '<p class="info">Demande des permissions...</p>';
+
+            Promise.all([
+                navigator.permissions?.query?.({ name: 'geolocation' }) || Promise.resolve(null),
+                Notification.permission
+            ]).then(([geoResult, notifResult]) => {
+                let html = '';
+                if (geoResult) {
+                    const badge = `<div class="status-badge ${geoResult.state === 'granted' ? 'status-ok' : geoResult.state === 'prompt' ? 'status-warning' : 'status-error'}">Géolocalisation: ${geoResult.state}</div>`;
+                    html += badge;
+                }
+                html += `<div class="status-badge ${notifResult === 'granted' ? 'status-ok' : notifResult === 'default' ? 'status-warning' : 'status-error'}">Notifications: ${notifResult}</div>`;
+                result.innerHTML = html;
+                console.log('Permissions:', { geolocation: geoResult?.state, notifications: notifResult });
+            }).catch(err => {
+                result.innerHTML = '<div class="result error">Erreur: ' + err.message + '</div>';
+                console.error('Erreur permissions:', err);
+            });
+        }
+
+        function testGeolocation() {
+            const result = document.getElementById('geolocation-result');
+            result.innerHTML = '<p class="info">🔄 Localisation en cours...</p>';
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude, accuracy, altitude } = position.coords;
+                    const html = `
+                        <div class="result success">
+                            <strong>✓ Position obtenue!</strong><br>
+                            Latitude: ${latitude.toFixed(6)}<br>
+                            Longitude: ${longitude.toFixed(6)}<br>
+                            Précision: ${accuracy.toFixed(0)}m<br>
+                            Altitude: ${altitude ? altitude.toFixed(1) + 'm' : 'N/A'}<br>
+                            Timestamp: ${new Date(position.timestamp).toLocaleString('fr-FR')}
+                        </div>
+                    `;
+                    result.innerHTML = html;
+                    console.log('Position obtenue:', position);
+                },
+                (error) => {
+                    const errorMsg = {
+                        1: 'Permission refusée',
+                        2: 'Position indisponible',
+                        3: 'Délai d\'attente dépassé'
+                    }[error.code] || error.message;
+                    const html = `<div class="result error"><strong>✗ Erreur:</strong><br>${errorMsg}</div>`;
+                    result.innerHTML = html;
+                    console.error('Erreur géolocalisation:', error);
+                },
+                { enableHighAccuracy: true, timeout: 30000 }
+            );
+        }
+
+        function testGeolocationWatch() {
+            const result = document.getElementById('geolocation-result');
+            result.innerHTML = '<p class="info">👁️ Suivi en cours...</p>';
+
+            watchId = navigator.geolocation.watchPosition(
+                (position) => {
+                    const { latitude, longitude, accuracy, speed, heading } = position.coords;
+                    const html = `
+                        <div class="result success">
+                            <strong>📍 Suivi actif</strong><br>
+                            Latitude: ${latitude.toFixed(6)}<br>
+                            Longitude: ${longitude.toFixed(6)}<br>
+                            Précision: ${accuracy.toFixed(0)}m<br>
+                            Vitesse: ${speed ? (speed * 3.6).toFixed(1) + ' km/h' : 'N/A'}<br>
+                            Direction: ${heading ? heading.toFixed(0) + '°' : 'N/A'}<br>
+                            Heure: ${new Date(position.timestamp).toLocaleTimeString('fr-FR')}
+                        </div>
+                    `;
+                    result.innerHTML = html;
+                    console.log('Position mise à jour:', position.coords);
+                },
+                (error) => {
+                    console.error('Erreur suivi:', error);
+                },
+                { enableHighAccuracy: true, maximumAge: 0 }
+            );
+
+            document.getElementById('watch-btn').disabled = true;
+            document.getElementById('stop-btn').disabled = false;
+        }
+
+        function stopGeolocationWatch() {
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+                document.getElementById('geolocation-result').innerHTML = '<p class="info">✋ Suivi arrêté</p>';
+                document.getElementById('watch-btn').disabled = false;
+                document.getElementById('stop-btn').disabled = true;
+                console.log('Suivi arrêté');
+            }
+        }
+
+        function testGeoModule() {
+            const result = document.getElementById('module-info');
+            result.innerHTML = '';
+
+            if (typeof GEOLOCATION_MODULE === 'undefined') {
+                result.innerHTML = '<div class="result error">Module GEOLOCATION_MODULE non chargé</div>';
+                console.error('GEOLOCATION_MODULE non disponible');
+                return;
+            }
+
+            const html = '<div class="result success"><strong>✓ Module GEOLOCATION_MODULE chargé</strong></div>';
+            result.innerHTML += html;
+
+            if (typeof window.SIG_MAP === 'undefined') {
+                result.innerHTML += '<div class="result error">Map non disponible (window.SIG_MAP)</div>';
+                console.error('SIG_MAP non disponible');
+            } else {
+                result.innerHTML += '<div class="result success">✓ Map (window.SIG_MAP) disponible</div>';
+                
+                // Essayer d'initialiser le module
+                try {
+                    const geoApi = GEOLOCATION_MODULE.init(window.SIG_MAP, {
+                        highAccuracy: true,
+                        showAccuracyCircle: true,
+                        showTrail: true
+                    });
+                    
+                    if (geoApi) {
+                        result.innerHTML += '<div class="result success">✓ Module initialisé avec succès</div>';
+                        
+                        // Tester les méthodes
+                        const methods = ['startTracking', 'stopTracking', 'getCurrentLocation', 'getLocationHistory'];
+                        methods.forEach(method => {
+                            const hasMethod = typeof geoApi[method] === 'function';
+                            const badge = document.createElement('div');
+                            badge.className = 'status-badge ' + (hasMethod ? 'status-ok' : 'status-error');
+                            badge.textContent = (hasMethod ? '✓' : '✗') + ' ' + method;
+                            result.appendChild(badge);
+                        });
+                    } else {
+                        result.innerHTML += '<div class="result error">✗ Initialisation échouée (geoApi null)</div>';
+                        console.error('geoApi is null');
+                    }
+                } catch (err) {
+                    result.innerHTML += `<div class="result error">✗ Erreur d'initialisation: ${err.message}</div>`;
+                    console.error('Erreur initialisation:', err);
+                }
+            }
+
+            console.log('Test module terminé');
+        }
+
+        function testServiceWorker() {
+            const result = document.getElementById('sw-info');
+            result.innerHTML = '';
+
+            if (!('serviceWorker' in navigator)) {
+                result.innerHTML = '<div class="result error">Service Worker non supporté</div>';
+                return;
+            }
+
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                if (registrations.length === 0) {
+                    result.innerHTML += '<div class="result warning">Aucun Service Worker enregistré</div>';
+                    console.warn('Aucun SW');
+                } else {
+                    registrations.forEach((reg, i) => {
+                        const html = `
+                            <div class="result success">
+                                <strong>Service Worker ${i + 1}</strong><br>
+                                Scope: ${reg.scope}<br>
+                                Active: ${reg.active ? 'Oui' : 'Non'}<br>
+                                State: ${reg.active?.state || 'N/A'}
+                            </div>
+                        `;
+                        result.innerHTML += html;
+                        console.log(`SW ${i + 1}:`, reg);
+                    });
+                }
+            }).catch(err => {
+                result.innerHTML += `<div class="result error">Erreur: ${err.message}</div>`;
+                console.error('Erreur SW:', err);
+            });
+        }
+
+        // Test au chargement
+        window.addEventListener('load', () => {
+            console.log('===== PAGE DE TEST GÉOLOCALISATION CHARGÉE =====');
+            console.log('URL:', window.location.href);
+            console.log('HTTPS:', location.protocol === 'https:');
+            console.log('Localhost:', location.hostname === 'localhost');
+            testBrowserSupport();
+        });
+    </script>
+</body>
+</html>

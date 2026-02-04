@@ -308,6 +308,9 @@ const SIG_SENEGAL = (function() {
     function initMap() {
         map = L.map('map', { zoomControl: false }).setView(mapConfig.center, mapConfig.zoom);
         mapConfig.basemaps.osm.addTo(map);
+        
+        // Exposer la carte globalement pour les modules
+        window.SIG_MAP = map;
 
         map.on('mousemove', (e) => {
             document.getElementById('coord-display').innerText = `${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`;
@@ -431,6 +434,9 @@ const SIG_SENEGAL = (function() {
 document.addEventListener('DOMContentLoaded', () => {
     // Initialiser la carte SIG
     SIG_SENEGAL.init();
+    
+    // Récupérer la référence à la carte depuis le module SIG
+    const map = window.SIG_MAP;
 
     // Initialiser le module de géolocalisation après un court délai
     setTimeout(() => {
@@ -446,8 +452,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!geoApi) {
             document.getElementById('locate-permission-alert').innerHTML = 
                 '<i class="fas fa-exclamation-triangle me-2"></i>La géolocalisation n\'est pas disponible sur cet appareil.';
+            console.error('[INIT] Impossible d\'initialiser le module de géolocalisation');
             return;
         }
+
+        console.log('[INIT] Module de géolocalisation initialisé avec succès');
 
         // Bouton: Localiser une fois
         document.getElementById('btn-locate-once').onclick = async () => {
@@ -457,24 +466,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 await GEOLOCATION_MODULE.requestLocationPermission();
-                geoApi.startTracking();
                 
-                setTimeout(() => {
-                    const location = geoApi.getCurrentLocation();
+                const startTime = Date.now();
+                let locationFound = false;
+
+                // Attendre la première localisation
+                const checkInterval = setInterval(() => {
+                    const location = GEOLOCATION_MODULE.geoState?.currentLocation || 
+                                   (geoApi && geoApi.getCurrentLocation ? geoApi.getCurrentLocation() : null);
+                    
                     if (location) {
+                        clearInterval(checkInterval);
+                        locationFound = true;
                         updateLocationDisplay(location);
                         document.getElementById('location-info').style.display = 'block';
                         if (map) map.setView([location.latitude, location.longitude], 15);
                     }
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-map-pin me-2"></i>Localiser ma position';
-                    geoApi.stopTracking();
+                    
+                    // Timeout après 10 secondes
+                    if (Date.now() - startTime > 10000) {
+                        clearInterval(checkInterval);
+                        if (!locationFound) {
+                            console.warn('[GEOLOCATION] Timeout: position non obtenue dans le délai imparti');
+                        }
+                    }
+                }, 100);
+
+                // Démarrer le suivi pour obtenir la position
+                geoApi.startTracking();
+                
+                // Arrêter après 2 secondes si pas besoin du suivi continu
+                setTimeout(() => {
+                    if (locationFound) {
+                        geoApi.stopTracking();
+                    }
                 }, 2000);
+                
             } catch (error) {
                 console.error('Erreur de localisation:', error);
+                PWA_MODULE.showNotification('Erreur', 'Impossible d\'accéder à votre position.');
+            } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-map-pin me-2"></i>Localiser ma position';
-                PWA_MODULE.showNotification('Erreur', 'Impossible d\'accéder à votre position.');
             }
         };
 

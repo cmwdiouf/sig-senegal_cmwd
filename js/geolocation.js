@@ -19,6 +19,9 @@ const GEOLOCATION_MODULE = (() => {
     }
   };
 
+  // Référence à la carte
+  let mapReference = null;
+
   // Configuration
   const config = {
     highAccuracy: true,
@@ -41,8 +44,11 @@ const GEOLOCATION_MODULE = (() => {
   function init(map, options = {}) {
     if (!map) {
       console.error('[GEOLOCATION] Map non initialisée');
-      return;
+      return null;
     }
+
+    // Stocker la référence à la carte
+    mapReference = map;
 
     // Fusionner avec les options
     Object.assign(config, options);
@@ -53,14 +59,14 @@ const GEOLOCATION_MODULE = (() => {
     // Vérifier la disponibilité de la géolocalisation
     if (!navigator.geolocation) {
       console.error('[GEOLOCATION] Géolocalisation non disponible dans ce navigateur');
-      return;
+      return null;
     }
 
     console.log('[GEOLOCATION] Module initialisé');
     return {
-      startTracking: () => startTracking(map),
+      startTracking: () => startTracking(mapReference),
       stopTracking: stopTracking,
-      getLocation: getLocation,
+      getLocation: (callback) => getLocation(mapReference, callback),
       getCurrentLocation: () => geoState.currentLocation,
       getLocationHistory: () => [...geoState.locationHistory],
       clearHistory: clearHistory,
@@ -73,23 +79,33 @@ const GEOLOCATION_MODULE = (() => {
    * Démarre le suivi de la position en temps réel
    */
   function startTracking(map) {
+    // Utiliser la mapReference si aucune carte n'est passée en paramètre
+    const targetMap = map || mapReference;
+    
+    if (!targetMap) {
+      console.error('[GEOLOCATION] Aucune carte disponible pour le suivi');
+      return null;
+    }
+
     if (geoState.isTracking) {
       console.warn('[GEOLOCATION] Suivi déjà actif');
-      return;
+      return geoState.watchId;
     }
 
     console.log('[GEOLOCATION] Démarrage du suivi...');
     geoState.isTracking = true;
 
     // Première localisation
-    getLocation(map, (location) => {
-      console.log('[GEOLOCATION] Position initiale:', location);
+    getLocation(targetMap, (location) => {
+      if (location) {
+        console.log('[GEOLOCATION] Position initiale:', location);
+      }
     });
 
     // Suivi continu
     geoState.watchId = navigator.geolocation.watchPosition(
       (position) => {
-        handlePositionSuccess(position, map);
+        handlePositionSuccess(position, targetMap);
       },
       (error) => {
         handlePositionError(error);
@@ -142,6 +158,9 @@ const GEOLOCATION_MODULE = (() => {
    * Obtient une seule position
    */
   function getLocation(map, callback) {
+    // Utiliser la mapReference si aucune carte n'est passée en paramètre
+    const targetMap = map || mapReference;
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const location = extractLocationData(position);
@@ -151,7 +170,9 @@ const GEOLOCATION_MODULE = (() => {
         addToHistory(location);
 
         // Mettre à jour la carte
-        updateMapMarkers(map, location);
+        if (targetMap) {
+          updateMapMarkers(targetMap, location);
+        }
 
         // Callback
         if (callback) callback(location);
@@ -167,7 +188,7 @@ const GEOLOCATION_MODULE = (() => {
         console.log('[GEOLOCATION] Position obtenue:', location);
       },
       (error) => {
-        handlePositionError(error);
+        const message = handlePositionError(error);
         if (callback) callback(null);
       },
       {
