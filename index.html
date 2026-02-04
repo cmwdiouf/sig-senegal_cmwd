@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css">
+    <link rel="stylesheet" href="./css/mobile-pro.css">
 
     <style>
         :root {
@@ -438,6 +439,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Récupérer la référence à la carte depuis le module SIG
     const map = window.SIG_MAP;
 
+    // Initialiser le module SIG avancé (recherche, filtres, stats)
+    setTimeout(() => {
+      if (typeof SIG_ADVANCED !== 'undefined') {
+        SIG_ADVANCED.init(map, window.layers || {});
+      }
+    }, 100);
+
     // Initialiser le module de géolocalisation après un court délai
     setTimeout(() => {
         const geoApi = GEOLOCATION_MODULE.init(map, {
@@ -639,6 +647,11 @@ function updateHistoryCount() {
 <!-- Scripts PWA et Géolocalisation -->
 <script src="./js/geolocation.js"></script>
 <script src="./js/pwa.js"></script>
+
+<!-- Modules SIG Avancés -->
+<script src="./js/mobile-ui.js"></script>
+<script src="./js/sig-advanced.js"></script>
+<script src="./js/performance.js"></script>
 
 </body>
 </html>
