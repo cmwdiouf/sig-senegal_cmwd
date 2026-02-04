@@ -473,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialiser le module de géolocalisation après un court délai
     setTimeout(() => {
-        const geoApi = GEOLOCATION_MODULE.init(map, {
+        window.geoApi = GEOLOCATION_MODULE.init(map, {
             highAccuracy: true,
             showAccuracyCircle: true,
             showTrail: true,
@@ -482,7 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
             trailOpacity: 0.7
         });
 
-        if (!geoApi) {
+        if (!window.geoApi) {
             document.getElementById('locate-permission-alert').innerHTML = 
                 '<i class="fas fa-exclamation-triangle me-2"></i>La géolocalisation n\'est pas disponible sur cet appareil.';
             console.error('[INIT] Impossible d\'initialiser le module de géolocalisation');
@@ -506,7 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Attendre la première localisation
                 const checkInterval = setInterval(() => {
                     const location = GEOLOCATION_MODULE.geoState?.currentLocation || 
-                                   (geoApi && geoApi.getCurrentLocation ? geoApi.getCurrentLocation() : null);
+                                   (window.geoApi && window.geoApi.getCurrentLocation ? window.geoApi.getCurrentLocation() : null);
                     
                     if (location) {
                         clearInterval(checkInterval);
@@ -526,12 +526,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 100);
 
                 // Démarrer le suivi pour obtenir la position
-                geoApi.startTracking();
+                window.geoApi.startTracking();
                 
                 // Arrêter après 2 secondes si pas besoin du suivi continu
                 setTimeout(() => {
                     if (locationFound) {
-                        geoApi.stopTracking();
+                        window.geoApi.stopTracking();
                     }
                 }, 2000);
                 
@@ -548,7 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('btn-locate-track').onclick = async () => {
             try {
                 await GEOLOCATION_MODULE.requestLocationPermission();
-                const watchId = geoApi.startTracking();
+                const watchId = window.geoApi.startTracking();
                 
                 document.getElementById('btn-locate-track').classList.add('d-none');
                 document.getElementById('btn-locate-stop').classList.remove('d-none');
@@ -558,7 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Mettre à jour l'affichage toutes les secondes
                 window.locationUpdateInterval = setInterval(() => {
-                    const location = geoApi.getCurrentLocation();
+                    const location = window.geoApi.getCurrentLocation();
                     if (location) {
                         updateLocationDisplay(location);
                         updateHistoryCount();
@@ -572,7 +572,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Bouton: Arrêter le suivi
         document.getElementById('btn-locate-stop').onclick = () => {
-            geoApi.stopTracking();
+            window.geoApi.stopTracking();
             document.getElementById('btn-locate-stop').classList.add('d-none');
             document.getElementById('btn-locate-track').classList.remove('d-none');
             
@@ -618,7 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Bouton: Effacer l'historique
         document.getElementById('btn-clear-history').onclick = () => {
             if (confirm('Êtes-vous sûr de vouloir effacer l\'historique de déplacement?')) {
-                geoApi.clearHistory();
+                window.geoApi.clearHistory();
                 document.getElementById('history-count').textContent = '0';
                 PWA_MODULE.showNotification('Historique effacé', 'Votre trace de déplacement a été supprimée.');
             }
@@ -659,12 +659,9 @@ function updateLocationDisplay(location) {
  * Met à jour le compteur d'historique
  */
 function updateHistoryCount() {
-    const geoApi = window.GEOLOCATION_MODULE ? GEOLOCATION_MODULE : null;
-    if (geoApi) {
-        const state = geoApi.getState ? geoApi.getState() : null;
-        if (state && state.locationHistory) {
-            document.getElementById('history-count').textContent = state.locationHistory.length;
-        }
+    if (window.GEOLOCATION_MODULE && window.GEOLOCATION_MODULE.geoState) {
+        const historyLength = window.GEOLOCATION_MODULE.geoState.locationHistory.length;
+        document.getElementById('history-count').textContent = historyLength;
     }
 }
 </script>

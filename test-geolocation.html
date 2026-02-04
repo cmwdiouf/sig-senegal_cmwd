@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Géolocalisation</title>
+</head>
+<body>
+    <h1>Test du Module de Géolocalisation</h1>
+    <div id="test-results"></div>
+    
+    <script src="./js/geolocation.js"></script>
+    <script>
+        function test() {
+            const results = [];
+            
+            // Test 1: Module existe
+            if (window.GEOLOCATION_MODULE) {
+                results.push('✓ Module GEOLOCATION_MODULE existe');
+            } else {
+                results.push('✗ Module GEOLOCATION_MODULE n\'existe pas');
+                document.getElementById('test-results').innerHTML = results.map(r => `<p>${r}</p>`).join('');
+                return;
+            }
+            
+            // Test 2: Méthode init existe
+            if (typeof GEOLOCATION_MODULE.init === 'function') {
+                results.push('✓ Méthode init existe');
+            } else {
+                results.push('✗ Méthode init n\'existe pas');
+            }
+            
+            // Test 3: geoState existe
+            if (GEOLOCATION_MODULE.geoState) {
+                results.push('✓ geoState existe');
+            } else {
+                results.push('✗ geoState n\'existe pas');
+            }
+            
+            // Test 4: Propriétés geoState
+            const expectedProps = ['isTracking', 'watchId', 'currentLocation', 'locationHistory', 'markers'];
+            for (const prop of expectedProps) {
+                if (prop in GEOLOCATION_MODULE.geoState) {
+                    results.push(`✓ geoState.${prop} existe`);
+                } else {
+                    results.push(`✗ geoState.${prop} n'existe pas`);
+                }
+            }
+            
+            // Test 5: Vérifier que requestLocationPermission est une fonction
+            if (typeof GEOLOCATION_MODULE.requestLocationPermission === 'function') {
+                results.push('✓ requestLocationPermission est une fonction');
+            } else {
+                results.push('✗ requestLocationPermission n\'est pas une fonction');
+            }
+            
+            // Afficher les résultats
+            document.getElementById('test-results').innerHTML = results.map(r => {
+                const isSuccess = r.startsWith('✓');
+                return `<p style="color: ${isSuccess ? 'green' : 'red'}">${r}</p>`;
+            }).join('');
+        }
+        
+        // Exécuter les tests une fois que le module est chargé
+        setTimeout(test, 100);
+    </script>
+</body>
+</html>
